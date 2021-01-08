@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.port || 5000;
 const path = require("path");
+const CronJob = require('cron').CronJob;
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('abcd');
 
@@ -39,6 +40,21 @@ db.serialize(function() {
 		});
 		})
 });
+
+const task = new CronJob('* * * * * *', () => {
+	let insert = `
+		INSERT INTO Persons (LastName, FirstName, Age) VALUES (
+			'someone',
+			'jon',
+			30
+		);
+	`;
+	console.log('Running CRON job now: ');
+	db.run(insert, (error) => {
+		error ? console.log( 'Error ------', error ) : console.log('Data successfully inserted into table');
+	});
+}, true, "Europe/London")
+task.start();
 
 
 	
